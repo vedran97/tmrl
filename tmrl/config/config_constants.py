@@ -12,7 +12,8 @@ __compatibility__ = "0.6.0"
 SYSTEM = platform.system()
 RTGYM_VERSION = "real-time-gym-v1" if SYSTEM == "Windows" else "real-time-gym-ts-v1"
 
-TMRL_FOLDER = Path.home() / "TmrlData"
+
+TMRL_FOLDER = Path(__file__).resolve().parent.parent.parent / "TmrlData"
 CHECKPOINTS_FOLDER = TMRL_FOLDER / "checkpoints"
 DATASET_FOLDER = TMRL_FOLDER / "dataset"
 REWARD_FOLDER = TMRL_FOLDER / "reward"
