@@ -23,6 +23,7 @@ def main(args):
         config_modifiers = args.config
         for k, v in config_modifiers.items():
             config[k] = v
+        print(f"MODEL PATH {cfg.MODEL_PATH_WORKER}")
         rw = RolloutWorker(env_cls=partial(GenericGymEnv, id=cfg.RTGYM_VERSION, gym_kwargs={"config": config}),
                            actor_module_cls=cfg_obj.POLICY,
                            sample_compressor=cfg_obj.SAMPLE_COMPRESSOR,

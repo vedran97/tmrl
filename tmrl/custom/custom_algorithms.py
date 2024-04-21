@@ -23,10 +23,11 @@ import logging
 
 @dataclass(eq=0)
 class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
+    print(f"\r\n Starting SAC \r\n")
     observation_space: type
     action_space: type
     device: str = None  # device where the model will live (None for auto)
-    model_cls: type = core.MLPActorCritic
+    model_cls: type = core.VanillaCNNActorCritic
     gamma: float = 0.99
     polyak: float = 0.995
     alpha: float = 0.2  # fixed (v1) or initial (v2) value of the entropy coefficient
@@ -47,8 +48,11 @@ class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
     def __post_init__(self):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        logging.info(f"\r\n device SAC: {device}")
+        print(f"\r\n observation space: {type(observation_space)}")
+        print(f"\r\n type of model cls: {type(self.model_cls)}")
         model = self.model_cls(observation_space, action_space)
-        logging.debug(f" device SAC: {device}")
+        
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
 

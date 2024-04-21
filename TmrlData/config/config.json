@@ -1,10 +1,10 @@
 {
-  "RUN_NAME": "SAC_4_imgs_custom",
+  "RUN_NAME": "SAC_4_imgs_pretrained_custom_2",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
   "CUDA_TRAINING": true,
-  "CUDA_INFERENCE": true,
+  "CUDA_INFERENCE": false,
   "VIRTUAL_GAMEPAD": true,
   "DCAC": false,
   "LOCALHOST_WORKER": true,
@@ -39,7 +39,7 @@
   "WAIT_BEFORE_RECONNECTION": 10.0,
   "LOOP_SLEEP_TIME": 1.0,
   "MAX_EPOCHS": 10000,
-  "ROUNDS_PER_EPOCH": 100,
+  "ROUNDS_PER_EPOCH": 10,
   "TRAINING_STEPS_PER_ROUND": 200,
   "MAX_TRAINING_STEPS_PER_ENVIRONMENT_STEP": 4.0,
   "ENVIRONMENT_STEPS_BEFORE_TRAINING": 1000,
@@ -51,8 +51,8 @@
   "ALG": {
     "ALGORITHM": "SAC",
     "LEARN_ENTROPY_COEF":false,
-    "LR_ACTOR":0.00001,
-    "LR_CRITIC":0.00005,
+    "LR_ACTOR":0.001,
+    "LR_CRITIC":0.001,
     "LR_ENTROPY":0.0003,
     "GAMMA":0.995,
     "POLYAK":0.995,
@@ -70,8 +70,8 @@
   },
   "ENV": {
     "RTGYM_INTERFACE": "TM20IMAGES",
-    "WINDOW_WIDTH": 512,
-    "WINDOW_HEIGHT": 256,
+    "WINDOW_WIDTH": 256,
+    "WINDOW_HEIGHT": 128,
     "IMG_WIDTH": 64,
     "IMG_HEIGHT": 64,
     "IMG_GRAYSCALE": true,
@@ -82,20 +82,20 @@
       "start_obs_capture": 0.04,
       "time_step_timeout_factor": 1.0,
       "act_buf_len": 2,
-      "benchmark": true,
+      "benchmark": false,
       "wait_on_done": true,
-      "ep_max_length": 1000,
-	  "interface_kwargs": {"save_replays": true}
+      "interface_kwargs": {"save_replays": true}
     },
-	"REWARD_CONFIG": {
-		"END_OF_TRACK": 100.0,
-		"CONSTANT_PENALTY": 0.0,
-		"CHECK_FORWARD": 500,
-		"CHECK_BACKWARD": 10,
-		"FAILURE_COUNTDOWN": 10,
-		"MIN_STEPS": 70,
-		"MAX_STRAY": 100.0
-	}
-  },
+    "REWARD_CONFIG": {
+      "END_OF_TRACK": 100.0,
+      "CONSTANT_PENALTY": 0.0,
+      "CHECK_FORWARD": 500,
+      "CHECK_BACKWARD": 10,
+      "FAILURE_COUNTDOWN": 10,
+      "MIN_STEPS": 70,
+      "MAX_STRAY": 100.0
+    }
+  }
+  ,
   "__VERSION__": "0.6.0"
 }

@@ -500,10 +500,10 @@ class RolloutWorker:
         self.actor = actor_module_cls(observation_space=obs_space, action_space=act_space).to_device(self.device)
         self.standalone = standalone
         if os.path.isfile(self.model_path):
-            logging.debug(f"Loading model from {self.model_path}")
+            logging.info(f"Loading model from {self.model_path}")
             self.actor = self.actor.load(self.model_path, device=self.device)
         else:
-            logging.debug(f"No model found at {self.model_path}")
+            logging.info(f"No model found at {self.model_path}")
         self.buffer = Buffer()
         self.max_samples_per_episode = max_samples_per_episode
         self.crc_debug = crc_debug
@@ -517,7 +517,7 @@ class RolloutWorker:
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
 
         print_with_timestamp(f"server IP: {self.server_ip}")
-
+        logging.info(f"lmao retard whats the obs size shape:{self.env.observation_space}")
         if not self.standalone:
             self.__endpoint = Endpoint(ip_server=self.server_ip,
                                        port=server_port,

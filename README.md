@@ -7,12 +7,15 @@ cd into this repo
 
 1.  ``python __main__.py --server``
 
-2.  ``python __main__.py --trainer``
+2.  ``python __main__.py --trainer --wandb``
 
 3.  ``python __main__.py --worker``
 
-4. reward: ```python -m tmrl --record-reward```
+4. reward: ```python __main__.py --record-reward```
 
+5. test pretrained: ```python __main__.py --test```
+
+6. environment check: ```python __main__.py --check-environment```
 ###
 [![PyPI version](https://badge.fury.io/py/tmrl.svg)](https://badge.fury.io/py/tmrl)
 [![PyPI - License](https://img.shields.io/pypi/l/tmrl?color=blue)](https://github.com/trackmania-rl/tmrl/blob/master/LICENSE)

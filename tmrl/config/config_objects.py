@@ -103,6 +103,7 @@ MEMORY = partial(MEM,
 # ALGORITHM: ===================================================
 
 if ALG_NAME == "SAC":
+    print(f"WHAT MODEL IS BEING USED {TRAIN_MODEL}")
     AGENT = partial(
         SAC_Agent,
         device='cuda' if cfg.CUDA_TRAINING else 'cpu',
