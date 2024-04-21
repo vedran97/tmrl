@@ -617,7 +617,7 @@ class UNet(Module):
         # -------
         # input: 572x572x3
         self.e11 = nn.Conv2d(hist, 64, kernel_size=3, padding=1) # output: 570x570x64
-        self.e12 = nn.Conv2d(64, 64, kernel_size=3, padding=1) # output: 568x568x64
+        # self.e12 = nn.Conv2d(64, 64, kernel_size=3, padding=1) # output: 568x568x64
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 284x284x64
 
         # input: 284x284x64
@@ -655,14 +655,15 @@ class UNet(Module):
 
         self.upconv4 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
         self.outconv = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.avg_pool = nn.AvgPool2d((64,64),1,0)
         self.out_channels = self.outconv.out_channels
         print(f"post out_conv channels:self.out_channels {self.out_channels}")
         ## TO FIX => Find this height , width
-        self.flat_features = self.out_channels * 64 * 64
+        self.flat_features = self.out_channels * 1 * 1
         print(f"flat features :self.flat_features {self.flat_features}")
         self.mlp_input_features = self.flat_features + 12 if self.q_net else self.flat_features + 9
         print(f"mlp_input_features :mlp_input_features {self.mlp_input_features}")
-        self.mlp_layers = [256, 256, 1] if self.q_net else [256, 256]
+        self.mlp_layers = [256, 256, 1] if self.q_net else [ 256]
         self.mlp = mlp([self.mlp_input_features] + self.mlp_layers, nn.ReLU)
     def forward(self, x):
         if self.q_net:
@@ -671,8 +672,8 @@ class UNet(Module):
             speed, gear, rpm, images, act1, act2 = x
         # Encoder
         xe11 = relu(self.e11(images))
-        xe12 = relu(self.e12(xe11))
-        xp1 = self.pool1(xe12)
+        # xe12 = relu(self.e12(xe11))
+        xp1 = self.pool1(xe11)
 
         xe21 = relu(self.e21(xp1))
         # xe22 = relu(self.e22(xe21))
@@ -706,8 +707,10 @@ class UNet(Module):
         # xd32 = relu(self.d32(xd31))
 
         xu4 = self.upconv4(xd31)
-        xu44 = torch.cat([xu4, xe12], dim=1)
+        xu44 = torch.cat([xu4, xe11], dim=1)
         out = relu(self.outconv(xu44))
+        out = self.avg_pool(out)
+        # print(f"OUT SHAPE:{out.shape}")
         flat_features = num_flat_features(out)
         x=out
         assert flat_features == self.flat_features, f"x.shape:{x.shape}, flat_features:{flat_features}, self.out_channels:{self.out_channels}, self.h_out:{self.h_out}, self.w_out:{self.w_out}"
