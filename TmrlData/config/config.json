@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "SAC_4_imgs_pretrained_custom_2",
+  "RUN_NAME": "SAC_4_imgs_pretrained_custom_model_unet",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
