@@ -652,18 +652,17 @@ class UNet(Module):
         self.upconv3 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2)
         self.d31 = nn.Conv2d(256, 128, kernel_size=3, padding=1)
         # self.d32 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
-
         self.upconv4 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
         self.outconv = nn.Conv2d(128, 128, kernel_size=3, padding=1)
         self.avg_pool = nn.AvgPool2d((64,64),1,0)
         self.out_channels = self.outconv.out_channels
         print(f"post out_conv channels:self.out_channels {self.out_channels}")
         ## TO FIX => Find this height , width
-        self.flat_features = self.out_channels * 1 * 1
+        self.flat_features = self.out_channels * 1 * 1  #
         print(f"flat features :self.flat_features {self.flat_features}")
         self.mlp_input_features = self.flat_features + 12 if self.q_net else self.flat_features + 9
         print(f"mlp_input_features :mlp_input_features {self.mlp_input_features}")
-        self.mlp_layers = [256, 256, 1] if self.q_net else [ 256]
+        self.mlp_layers = [256, 256, 1] if self.q_net else [256]
         self.mlp = mlp([self.mlp_input_features] + self.mlp_layers, nn.ReLU)
     def forward(self, x):
         if self.q_net:
@@ -768,6 +767,8 @@ class UNETCNNActor(TorchActorModule):
             a, _ = self.forward(obs, test, False)
             return a.squeeze().cpu().numpy()
         
+
+
 class VanillaCNNQFunction(nn.Module):
     def __init__(self, observation_space, action_space):
         super().__init__()
