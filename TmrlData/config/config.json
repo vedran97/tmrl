@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "SAC_4_LIDAR_pretrained",
+  "RUN_NAME": "Phase2_MLP_REDQ_WD_dropout_Lidar",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
@@ -49,7 +49,7 @@
   "MEMORY_SIZE": 1000000,
   "BATCH_SIZE": 256,
   "ALG": {
-    "ALGORITHM": "SAC",
+    "ALGORITHM": "REDQSAC",
     "LEARN_ENTROPY_COEF":false,
     "LR_ACTOR":0.00001,
     "LR_CRITIC":0.00005,
@@ -65,8 +65,8 @@
 	"OPTIMIZER_CRITIC": "adam",
 	"BETAS_ACTOR": [0.997, 0.997],
 	"BETAS_CRITIC": [0.997, 0.997],
-	"L2_ACTOR": 0.0,
-	"L2_CRITIC": 0.0
+	"L2_ACTOR": 1e-4,
+	"L2_CRITIC": 1e-4
   },
   "ENV": {
     "RTGYM_INTERFACE": "TM20LIDAR",
@@ -75,7 +75,7 @@
 	"IMG_WIDTH": 64,
     "IMG_HEIGHT": 64,
 	"IMG_GRAYSCALE": true,
-    "SLEEP_TIME_AT_RESET": 0.2,
+    "SLEEP_TIME_AT_RESET": 1.5,
     "IMG_HIST_LEN": 4,
     "RTGYM_CONFIG": {
       "time_step_duration": 0.05,
