@@ -65,8 +65,8 @@
 	"OPTIMIZER_CRITIC": "adam",
 	"BETAS_ACTOR": [0.997, 0.997],
 	"BETAS_CRITIC": [0.997, 0.997],
-	"L2_ACTOR": 1e-4,
-	"L2_CRITIC": 1e-4
+	"L2_ACTOR": 1e-5,
+	"L2_CRITIC": 1e-5
   },
   "ENV": {
     "RTGYM_INTERFACE": "TM20LIDAR",
