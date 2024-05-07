@@ -32,21 +32,26 @@ def combined_shape(length, shape=None):
     return (length, shape) if np.isscalar(shape) else (length, *shape)
 
 
-def mlp(sizes, activation, output_activation=nn.Identity):
-    layers = []
-    for j in range(len(sizes) - 1):
-        act = activation if j < len(sizes) - 2 else output_activation
-        layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
-    return nn.Sequential(*layers)
-
 # def mlp(sizes, activation, output_activation=nn.Identity):
 #     layers = []
 #     for j in range(len(sizes) - 1):
-#         dropout_prob= 0.001 if  j < len(sizes) - 2 else 0.0
 #         act = activation if j < len(sizes) - 2 else output_activation
-#         # layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
-#         layers += [nn.Linear(sizes[j], sizes[j + 1]), act(),nn.Dropout(p=dropout_prob)]
+#         layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
 #     return nn.Sequential(*layers)
+
+def mlp(sizes, activation, output_activation=nn.Identity):
+    layers = []
+    dropout_prob=0.0
+    dropout_first_layer=True
+    for j in range(len(sizes) - 1):
+        act = activation if j < len(sizes) - 2 else output_activation
+        # layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
+        if dropout_first_layer:
+            layers += [nn.Linear(sizes[j], sizes[j + 1]), act(),nn.Dropout(p=dropout_prob)]
+            dropout_first_layer=False
+        else:
+            layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
+    return nn.Sequential(*layers)
 
 def count_vars(module):
     return sum([np.prod(p.shape) for p in module.parameters()])
@@ -163,7 +168,7 @@ class REDQMLPActorCritic(nn.Module):
     def __init__(self,
                  observation_space,
                  action_space,
-                 hidden_sizes=(256, 256),
+                 hidden_sizes=(256, 512,256),
                  activation=nn.ReLU,
                  n=10):
         super().__init__()

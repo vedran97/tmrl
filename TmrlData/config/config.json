@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "Phase2_MLP_REDQ_WD_dropout_Lidar_4",
+  "RUN_NAME": "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_1",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
@@ -38,21 +38,21 @@
   "RECV_TIMEOUT_WORKER_FROM_SERVER": 600.0,
   "WAIT_BEFORE_RECONNECTION": 10.0,
   "LOOP_SLEEP_TIME": 1.0,
-  "MAX_EPOCHS": 10000,
-  "ROUNDS_PER_EPOCH": 10,
-  "TRAINING_STEPS_PER_ROUND": 200,
+  "MAX_EPOCHS": 200,
+  "ROUNDS_PER_EPOCH": 50,
+  "TRAINING_STEPS_PER_ROUND": 100,
   "MAX_TRAINING_STEPS_PER_ENVIRONMENT_STEP": 4.0,
   "ENVIRONMENT_STEPS_BEFORE_TRAINING": 1000,
-  "UPDATE_MODEL_INTERVAL": 200,
-  "UPDATE_BUFFER_INTERVAL": 200,
-  "SAVE_MODEL_EVERY": 0,
+  "UPDATE_MODEL_INTERVAL": 1000,
+  "UPDATE_BUFFER_INTERVAL": 1000,
+  "SAVE_MODEL_EVERY": 60,
   "MEMORY_SIZE": 1000000,
   "BATCH_SIZE": 256,
   "ALG": {
     "ALGORITHM": "REDQSAC",
     "LEARN_ENTROPY_COEF":false,
-    "LR_ACTOR":0.001,
-    "LR_CRITIC":0.001,
+    "LR_ACTOR":1e-4,
+    "LR_CRITIC":1e-4,
     "LR_ENTROPY":0.0003,
     "GAMMA":0.995,
     "POLYAK":0.995,
@@ -69,14 +69,14 @@
 	"L2_CRITIC": 1e-5
   },
   "ENV": {
-    "RTGYM_INTERFACE": "TM20IMAGES",
-    "WINDOW_WIDTH": 256,
-    "WINDOW_HEIGHT": 128,
-    "IMG_WIDTH": 64,
+    "RTGYM_INTERFACE": "TM20LIDAR",
+    "WINDOW_WIDTH": 958,
+    "WINDOW_HEIGHT": 488,
+	"IMG_WIDTH": 64,
     "IMG_HEIGHT": 64,
-    "IMG_GRAYSCALE": true,
+	"IMG_GRAYSCALE": true,
     "SLEEP_TIME_AT_RESET": 1.5,
-    "IMG_HIST_LEN": 4,
+    "IMG_HIST_LEN": 8,
     "RTGYM_CONFIG": {
       "time_step_duration": 0.05,
       "start_obs_capture": 0.04,
@@ -84,18 +84,18 @@
       "act_buf_len": 2,
       "benchmark": false,
       "wait_on_done": true,
-      "interface_kwargs": {"save_replays": true}
+      "ep_max_length": 1000,
+	  "interface_kwargs": {"save_replays": true}
     },
-    "REWARD_CONFIG": {
-      "END_OF_TRACK": 100.0,
-      "CONSTANT_PENALTY": 0.0,
-      "CHECK_FORWARD": 500,
-      "CHECK_BACKWARD": 10,
-      "FAILURE_COUNTDOWN": 10,
-      "MIN_STEPS": 70,
-      "MAX_STRAY": 100.0
-    }
-  }
-  ,
+	"REWARD_CONFIG": {
+		"END_OF_TRACK": 100.0,
+		"CONSTANT_PENALTY": 0.0,
+		"CHECK_FORWARD": 500,
+		"CHECK_BACKWARD": 10,
+		"FAILURE_COUNTDOWN": 10,
+		"MIN_STEPS": 70,
+		"MAX_STRAY": 100.0
+	}
+  },
   "__VERSION__": "0.6.0"
 }

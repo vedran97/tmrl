@@ -324,7 +324,9 @@ class REDQSACAgent(TrainingAgent):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
         model = self.model_cls(observation_space, action_space)
-        logging.debug(f" device REDQ-SAC: {device}")
+        logging.info(f" device REDQ-SAC: {device}")
+        logging.info(f" self.lr_actor {self.lr_actor}")
+        logging.info(f" self.lr_critic {self.lr_critic}")
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
         self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor,weight_decay=self.l2_actor)
