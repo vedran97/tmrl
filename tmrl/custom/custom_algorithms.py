@@ -301,6 +301,7 @@ class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
 
 @dataclass(eq=0)
 class REDQSACAgent(TrainingAgent):
+    print(f"USING REDQ")
     observation_space: type
     action_space: type
     device: str = None  # device where the model will live (None for auto)

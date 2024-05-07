@@ -63,7 +63,7 @@ EPSILON = 1e-7
 
 
 class SquashedGaussianMLPActor(TorchActorModule):
-    def __init__(self, observation_space, action_space, hidden_sizes=(256, 256), activation=nn.ReLU):
+    def __init__(self, observation_space, action_space, hidden_sizes=(256, 512,256), activation=nn.ReLU):
         super().__init__(observation_space, action_space)
         try:
             dim_obs = sum(prod(s for s in space.shape) for space in observation_space)
@@ -122,7 +122,7 @@ class SquashedGaussianMLPActor(TorchActorModule):
 
 
 class MLPQFunction(nn.Module):
-    def __init__(self, obs_space, act_space, hidden_sizes=(256, 256), activation=nn.ReLU):
+    def __init__(self, obs_space, act_space, hidden_sizes=(256, 512,256), activation=nn.ReLU):
         super().__init__()
         try:
             obs_dim = sum(prod(s for s in space.shape) for space in obs_space)
