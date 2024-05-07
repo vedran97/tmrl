@@ -88,8 +88,8 @@
 	  "interface_kwargs": {"save_replays": true}
     },
 	"REWARD_CONFIG": {
-		"END_OF_TRACK": 100.0,
-		"CONSTANT_PENALTY": 0.0,
+		"END_OF_TRACK": 500.0,
+		"CONSTANT_PENALTY": -5,
 		"CHECK_FORWARD": 500,
 		"CHECK_BACKWARD": 10,
 		"FAILURE_COUNTDOWN": 10,
