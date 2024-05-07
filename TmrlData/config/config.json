@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_1",
+  "RUN_NAME": "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_1_05_07",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
@@ -50,7 +50,7 @@
   "BATCH_SIZE": 256,
   "ALG": {
     "ALGORITHM": "REDQSAC",
-    "LEARN_ENTROPY_COEF":true,
+    "LEARN_ENTROPY_COEF":false,
     "LR_ACTOR":5e-5,
     "LR_CRITIC":5e-5,
     "LR_ENTROPY":0.0003,
