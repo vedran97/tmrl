@@ -140,7 +140,9 @@ else:
         alpha=ALG_CONFIG["ALPHA"],  # inverse of reward scale
         n=ALG_CONFIG["REDQ_N"],  # number of Q networks
         m=ALG_CONFIG["REDQ_M"],  # number of Q targets
-        q_updates_per_policy_update=ALG_CONFIG["REDQ_Q_UPDATES_PER_POLICY_UPDATE"]
+        q_updates_per_policy_update=ALG_CONFIG["REDQ_Q_UPDATES_PER_POLICY_UPDATE"],
+        l2_actor=ALG_CONFIG["L2_ACTOR"] if "L2_ACTOR" in ALG_CONFIG else None,
+        l2_critic=ALG_CONFIG["L2_CRITIC"] if "L2_CRITIC" in ALG_CONFIG else None
     )
 
 # TRAINER: =====================================================

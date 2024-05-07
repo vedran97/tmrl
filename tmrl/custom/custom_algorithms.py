@@ -316,7 +316,8 @@ class REDQSACAgent(TrainingAgent):
     n: int = 10  # number of REDQ parallel Q networks
     m: int = 2  # number of REDQ randomly sampled target networks
     q_updates_per_policy_update: int = 1  # in REDQ, this is the "UTD ratio" (20), this interplays with lr_actor
-
+    l2_actor: float = None  # weight decay
+    l2_critic: float = None  # weight decay
     model_nograd = cached_property(lambda self: no_grad(copy_shared(self.model)))
 
     def __post_init__(self):
@@ -326,8 +327,8 @@ class REDQSACAgent(TrainingAgent):
         logging.debug(f" device REDQ-SAC: {device}")
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
-        self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor)
-        self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic) for q in self.model.qs]
+        self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor,weight_decay=self.l2_actor)
+        self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic,weight_decay=self.l2_critic) for q in self.model.qs]
         self.criterion = torch.nn.MSELoss()
         self.loss_pi = torch.zeros((1,), device=device)
 
