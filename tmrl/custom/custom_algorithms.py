@@ -333,9 +333,9 @@ class REDQSACAgent(TrainingAgent):
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
         self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor,weight_decay=self.l2_actor)
-        self.policy_lr_scheduler=torch.optim.lr_scheduler.StepLR(self.pi_optimizer,10,gamma=0.7)
+        self.policy_lr_scheduler=torch.optim.lr_scheduler.StepLR(self.pi_optimizer,1,gamma=0.90)
         self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic,weight_decay=self.l2_critic) for q in self.model.qs]
-        self.q_lr_scheduler_list=[torch.optim.lr_scheduler.StepLR(q_optim,10,gamma=0.7) for q_optim in self.q_optimizer_list]
+        self.q_lr_scheduler_list=[torch.optim.lr_scheduler.StepLR(q_optim,1,gamma=0.90) for q_optim in self.q_optimizer_list]
         self.criterion = torch.nn.MSELoss()
         self.loss_pi = torch.zeros((1,), device=device)
 
