@@ -294,7 +294,7 @@ def run_with_wandb(entity, project, run_id, interface, run_cls, checkpoint_path:
     wandb_dir = tempfile.mkdtemp()  # prevent wandb from polluting the home directory
     atexit.register(shutil.rmtree, wandb_dir, ignore_errors=True)  # clean up after wandb atexit handler finishes
     import wandb
-    logging.debug(f" run_cls: {run_cls}")
+    logging.info(f" run_cls: {run_cls}")
     config = partial_to_dict(run_cls)
     config['environ'] = log_environment_variables()
     # config['git'] = git_info()  # TODO: check this for bugs

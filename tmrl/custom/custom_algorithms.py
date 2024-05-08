@@ -320,7 +320,7 @@ class REDQSACAgent(TrainingAgent):
     l2_actor: float = None  # weight decay
     l2_critic: float = None  # weight decay
     model_nograd = cached_property(lambda self: no_grad(copy_shared(self.model)))
-
+    
     def __post_init__(self):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")

@@ -94,7 +94,7 @@ class TrainingOffline:
 
         for rnd in range(self.rounds):
             logging.info(f"=== epoch {self.epoch}/{self.epochs} ".ljust(20, '=') + f" round {rnd}/{self.rounds} ".ljust(50, '='))
-            logging.debug(f"(Training): current memory size:{len(self.memory)}")
+            logging.info(f"(Training): current memory size:{len(self.memory)}")
 
             stats_training = []
 
