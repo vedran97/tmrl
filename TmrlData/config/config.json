@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_4_05_07",
+  "RUN_NAME": "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_4_05_07_Trial",
   "RESET_TRAINING": false,
   "BUFFERS_MAXLEN": 500000,
   "RW_MAX_SAMPLES_PER_EPISODE": 1000,
@@ -63,8 +63,8 @@
     "REDQ_Q_UPDATES_PER_POLICY_UPDATE":20,
 	"OPTIMIZER_ACTOR": "adam",
 	"OPTIMIZER_CRITIC": "adam",
-	"BETAS_ACTOR": [0.997, 0.997],
-	"BETAS_CRITIC": [0.997, 0.997],
+	"BETAS_ACTOR": [0.99, 0.999999],
+	"BETAS_CRITIC": [0.99, 0.999999],
 	"L2_ACTOR": 1e-5,
 	"L2_CRITIC": 1e-5
   },

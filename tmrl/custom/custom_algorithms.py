@@ -320,7 +320,9 @@ class REDQSACAgent(TrainingAgent):
     l2_actor: float = None  # weight decay
     l2_critic: float = None  # weight decay
     model_nograd = cached_property(lambda self: no_grad(copy_shared(self.model)))
-    
+    policy_lr_scheduler=None
+    q_lr_scheduler_list=None
+
     def __post_init__(self):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -331,7 +333,9 @@ class REDQSACAgent(TrainingAgent):
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
         self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor,weight_decay=self.l2_actor)
+        self.policy_lr_scheduler=torch.optim.lr_scheduler.StepLR(self.pi_optimizer,10,gamma=0.7)
         self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic,weight_decay=self.l2_critic) for q in self.model.qs]
+        self.q_lr_scheduler_list=[torch.optim.lr_scheduler.StepLR(q_optim,10,gamma=0.7) for q_optim in self.q_optimizer_list]
         self.criterion = torch.nn.MSELoss()
         self.loss_pi = torch.zeros((1,), device=device)
 

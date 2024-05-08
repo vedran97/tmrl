@@ -17,7 +17,7 @@ from tmrl.custom.custom_algorithms import SpinupSacAgent as SAC_Agent
 from tmrl.custom.custom_algorithms import REDQSACAgent as REDQ_Agent
 from tmrl.custom.custom_checkpoints import update_run_instance
 from tmrl.util import partial
-
+import logging
 
 ALG_CONFIG = cfg.TMRL_CONFIG["ALG"]
 ALG_NAME = ALG_CONFIG["ALGORITHM"]
@@ -154,6 +154,16 @@ def sac_v2_entropy_scheduler(agent, epoch):
     if epoch <= end_epoch:
         agent.entopy_target = start_ent + (end_ent - start_ent) * epoch / end_epoch
 
+def REDQ_LR_SCHEDULER(agent,epoch):
+    logging.info(f"Epoch {epoch} Policy LR:{agent.policy_lr_scheduler.get_last_lr()}")
+    for q_sched in agent.q_lr_scheduler_list:
+        logging.info(f"q LRs: {q_sched.get_last_lr()}")
+
+    end_epoch=20
+    if epoch <= end_epoch:
+        agent.policy_lr_scheduler.step()
+        for q_sched in agent.q_lr_scheduler_list:
+            q_sched.step()
 
 ENV_CLS = partial(GenericGymEnv, id=cfg.RTGYM_VERSION, gym_kwargs={"config": CONFIG_DICT})
 
@@ -170,7 +180,7 @@ if cfg.PRAGMA_LIDAR:  # lidar
         max_training_steps_per_env_step=cfg.TMRL_CONFIG["MAX_TRAINING_STEPS_PER_ENVIRONMENT_STEP"],
         profiling=cfg.PROFILE_TRAINER,
         training_agent_cls=AGENT,
-        agent_scheduler=None,  # sac_v2_entropy_scheduler
+        agent_scheduler=REDQ_LR_SCHEDULER,  # sac_v2_entropy_scheduler
         start_training=cfg.TMRL_CONFIG["ENVIRONMENT_STEPS_BEFORE_TRAINING"])  # set this > 0 to start from an existing policy (fills the buffer up to this number of samples before starting training)
 else:  # images
     TRAINER = partial(
