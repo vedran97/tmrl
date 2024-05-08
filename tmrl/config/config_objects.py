@@ -160,7 +160,7 @@ def REDQ_LR_SCHEDULER(agent,epoch):
         logging.info(f"q LRs: {q_sched.get_last_lr()}")
 
     end_epoch=20
-    if epoch <= end_epoch:
+    if epoch <= end_epoch and epoch > 1:
         agent.policy_lr_scheduler.step()
         for q_sched in agent.q_lr_scheduler_list:
             q_sched.step()
