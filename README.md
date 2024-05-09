@@ -1,21 +1,113 @@
 # TMRL
-###
-Quick commands section
-clone this repo
-cd into this repo
+
+## Disclaimer
+
+1. This repository has been heavily modified from it's original, for our work on the final project of ENPM690.
+
+2. Please follow the instructions here to setup everything.
+
+3. Every step mentioned here is from WINDOWS10/11
+
+4. Prerequisites: Have CUDA installed for torch>=2.0 , Have Python3.8 Installed for windows 10/11 with pip and pip-tools
+
+5. This pipeline was tested with python 3.11.4 with cuda 12.1 on Windows 11 with a Nvidia RTX4060 GPU,32GB RAM and 12th i7 processor, with torch 2.2.2+cuda12.1
 
 
-1.  ``python __main__.py --server``
+## Install Instructions
 
-2.  ``python __main__.py --trainer --wandb``
+0. Ensure pre-reqs from the earlier section are installed.
 
-3.  ``python __main__.py --worker``
+1. Install Steam marketplace, create an account, sign in
 
-4. reward: ```python __main__.py --record-reward```
+2. Install Trackmania in the default location, install everything which comes with it.
 
-5. test pretrained: ```python __main__.py --test```
+3. Install Ubisoft Connect if prompted, create an account, sign in and link it with steam. (it will automatically redirect you to these steps when you launch the game for the first time)
 
-6. environment check: ```python __main__.py --check-environment```
+4. Once everything is installed, launch the game, ensure you can log in and finish the tutorial/initial runs and ensure you can drive.
+
+5. Quit the game and CUT-paste the Maps folder in this repository to C:\Users\\{USER_NAME}\OneDrive\Documents\Trackmania\
+
+6. Install OpenPlanetNext plugin for trackmania, instructions here: https://github.com/vedran97/tmrl/blob/master/readme/Install.md#windows-users---install-openplanet
+
+7. Once this installation is finished, copy paste the Plugins folder in this repository to C:\Users\\{USER_NAME}\OpenplanetNext
+
+8. Now ```pip install tmrl``` to install all dependencies and game drivers.
+
+9. Delete ``C:\Users\\{USER_NAME}\TmrlData``
+
+10. Run in a command shell ``pip uninstall tmrl``
+
+## Game settings initial setup:
+
+1. Launch the game => settings => video settings
+
+    1. Frame-Limit = 30
+
+    2. V-Sync = Off
+
+    3. Turn off all Anti aliasing
+
+    4. Display-Mode to Windowed
+
+    5. Window height = 488 , Window width = 958
+
+## Launching the game for training/eval:
+
+1. Launch trackmania
+2. Go to Create => Track Editor => Edit a track => My local track => My Maps
+3. Choose REQD_MLP_LIDAR_TRAIN
+4. Launch a trial run by pressing the Flag icon in the bottom left corner.
+5. Once the car spawns, press 3 on the numpad until the car is completely invisible
+6. Press g if there's a "ghost" car running infront of your when you launch a trial run.
+
+## Evaluation:
+
+1. Ensure all the steps above have been executed. Open a terminal in this repository
+
+2. Ensure this terminal and anything else, DOES NOT OCCLUDE trackmania window on screen.
+
+3. in the terminal , run ```python __main__.py --test```
+
+4. Ensure the weights of model to be used are in TmrlData/weights subdirectory of this repo 
+
+5. The name of this file must match the entry "RUN_NAME" in TmrlData/config/config.json
+
+6. THIS HAS BEEN SET TO THE CURRENT WORKING MODEL which is "Phase2_MLP_REDQ_WD_Lidar_Deeper_Network_1_05_08"
+
+## Changing map for evaluation:
+
+1. First follow all steps in the ``Launching the game for training/eval`` section but for the map of your liking.
+
+2. Record rewards for this map by first running ```python __main__.py --record-reward``` in a terminal
+
+3. Then shifting to the trackmania window, pressing backspace to restart the run, and pressing e right before driving and finishing the map
+
+4. This updates the rewards.pkl file to be aligned with this map
+
+5. Now follow the steps in the ``Evaluation`` section
+
+## Quick Commands:
+
+0. Clone this repo, checkout devel/vedant branch, git pull , open 3 terminals in this directory.
+
+1. For Training (ensure trackmania is opened first and no window is occluding it): 
+
+    1. Start training server: ``python __main__.py --server`` in terminal 1
+
+    2. Start train thread: ``python __main__.py --trainer --wandb`` in terminal 2
+
+    3. Start worker thread to collect rewards: ``python __main__.py --worker`` in terminal 3
+
+2. Recording Reward: ```python __main__.py --record-reward```
+
+3. Test the model name mentioned in TrmlData/config/config.json: ```python __main__.py --test```
+
+4. Run this to check if the environment is working or not: ```python __main__.py --check-environment```
+
+
+
+
+
 ###
 [![PyPI version](https://badge.fury.io/py/tmrl.svg)](https://badge.fury.io/py/tmrl)
 [![PyPI - License](https://img.shields.io/pypi/l/tmrl?color=blue)](https://github.com/trackmania-rl/tmrl/blob/master/LICENSE)
