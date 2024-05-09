@@ -15,6 +15,7 @@
 
 5. This pipeline was tested with python 3.11.4 with cuda 12.1 on Windows 11 with a Nvidia RTX4060 GPU,32GB RAM and 12th i7 processor, with torch 2.2.2+cuda12.1
 
+6. Check for training graphs here : https://wandb.ai/tmrl/tmrl?nw=nwuser1773826710
 
 ## Install Instructions
 
