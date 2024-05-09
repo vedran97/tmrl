@@ -25,7 +25,7 @@
 
 4. Once everything is installed, launch the game, ensure you can log in and finish the tutorial/initial runs and ensure you can drive.
 
-5. Quit the game and CUT-paste the Maps folder in this repository to C:\Users\\{USER_NAME}\OneDrive\Documents\Trackmania\
+5. Quit the game and CUT-paste the Maps folder in this repository to ``C:\Users\\{USER_NAME}\OneDrive\Documents\Trackmania\``
 
 6. Install OpenPlanetNext plugin for trackmania, instructions here: https://github.com/vedran97/tmrl/blob/master/readme/Install.md#windows-users---install-openplanet
 
@@ -58,7 +58,7 @@
 3. Choose REQD_MLP_LIDAR_TRAIN
 4. Launch a trial run by pressing the Flag icon in the bottom left corner.
 5. Once the car spawns, press 3 on the numpad until the car is completely invisible
-6. Press g if there's a "ghost" car running infront of your when you launch a trial run.
+6. Press g if there's a "ghost" car running infront of your when you launch a trial run. This ghost should not be present when you launch a trial run!!
 
 ## Evaluation:
 
