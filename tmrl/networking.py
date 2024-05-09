@@ -517,7 +517,7 @@ class RolloutWorker:
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
 
         print_with_timestamp(f"server IP: {self.server_ip}")
-        logging.info(f"lmao retard whats the obs size shape:{self.env.observation_space}")
+        logging.info(f"obs size shape:{self.env.observation_space}")
         if not self.standalone:
             self.__endpoint = Endpoint(ip_server=self.server_ip,
                                        port=server_port,

@@ -94,7 +94,7 @@
 		"CHECK_BACKWARD": 10,
 		"FAILURE_COUNTDOWN": 10,
 		"MIN_STEPS": 70,
-		"MAX_STRAY": 10
+		"MAX_STRAY": 1000
 	}
   },
   "__VERSION__": "0.6.0"
