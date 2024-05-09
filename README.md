@@ -8,7 +8,10 @@
 
 3. Every step mentioned here is from WINDOWS10/11
 
-4. Prerequisites: Have CUDA installed for torch>=2.0 , Have Python3.8 Installed for windows 10/11 with pip and pip-tools
+4. Prerequisites: 
+    1. Have CUDA installed for torch>=2.0 , Have Python3.8 Installed for windows 10/11 with pip and pip-tools
+
+    2. Clone this repo, checkout devel/vedant branch, git pull
 
 5. This pipeline was tested with python 3.11.4 with cuda 12.1 on Windows 11 with a Nvidia RTX4060 GPU,32GB RAM and 12th i7 processor, with torch 2.2.2+cuda12.1
 
