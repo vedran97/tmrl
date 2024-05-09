@@ -148,7 +148,19 @@ def update_run_instance(run_instance, training_cls):
         if ALG_NAME == "REDQSAC":
             m = ALG_CONFIG["REDQ_M"]
             q_updates_per_policy_update = ALG_CONFIG["REDQ_Q_UPDATES_PER_POLICY_UPDATE"]
+            if run_instance.agent.lr_actor != lr_actor:
+                old = run_instance.agent.lr_actor
+                run_instance.agent.lr_actor = lr_actor
+                run_instance.agent.pi_optimizer = Adam(run_instance.agent.model.actor.parameters(), lr=lr_actor)
+                logging.info(f"Actor optimizer reinitialized with new lr: {lr_actor} (old lr: {old}).")
 
+            if run_instance.agent.lr_critic != lr_critic:
+                old = run_instance.agent.lr_critic
+                run_instance.agent.lr_critic = lr_critic
+                run_instance.agent.q_optimizer_list = [Adam(q.parameters(), lr=lr_critic,weight_decay=run_instance.agent.l2_critic) for q in run_instance.agent.model.qs]
+                # run_instance.agent.q_optimizer = Adam(itertools.chain(run_instance.agent.model.q1.parameters(), run_instance.agent.model.q2.parameters()), lr=lr_critic)
+                logging.info(f"Critic optimizer reinitialized with new lr: {lr_critic} (old lr: {old}).")
+                
             if run_instance.agent.q_updates_per_policy_update != q_updates_per_policy_update:
                 old = run_instance.agent.q_updates_per_policy_update
                 run_instance.agent.q_updates_per_policy_update = q_updates_per_policy_update

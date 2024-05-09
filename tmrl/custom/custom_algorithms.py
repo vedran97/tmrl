@@ -23,10 +23,11 @@ import logging
 
 @dataclass(eq=0)
 class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
+    print(f"\r\n Starting SAC \r\n")
     observation_space: type
     action_space: type
     device: str = None  # device where the model will live (None for auto)
-    model_cls: type = core.MLPActorCritic
+    model_cls: type = core.UNETActorCNNCritic
     gamma: float = 0.99
     polyak: float = 0.995
     alpha: float = 0.2  # fixed (v1) or initial (v2) value of the entropy coefficient
@@ -47,8 +48,11 @@ class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
     def __post_init__(self):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        logging.info(f"\r\n device SAC: {device}")
+        print(f"\r\n observation space: {type(observation_space)}")
+        print(f"\r\n type of model cls: {type(self.model_cls)}")
         model = self.model_cls(observation_space, action_space)
-        logging.debug(f" device SAC: {device}")
+        
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
 
@@ -297,6 +301,7 @@ class SpinupSacAgent(TrainingAgent):  # Adapted from Spinup
 
 @dataclass(eq=0)
 class REDQSACAgent(TrainingAgent):
+    print(f"USING REDQ")
     observation_space: type
     action_space: type
     device: str = None  # device where the model will live (None for auto)
@@ -312,18 +317,25 @@ class REDQSACAgent(TrainingAgent):
     n: int = 10  # number of REDQ parallel Q networks
     m: int = 2  # number of REDQ randomly sampled target networks
     q_updates_per_policy_update: int = 1  # in REDQ, this is the "UTD ratio" (20), this interplays with lr_actor
-
+    l2_actor: float = None  # weight decay
+    l2_critic: float = None  # weight decay
     model_nograd = cached_property(lambda self: no_grad(copy_shared(self.model)))
+    policy_lr_scheduler=None
+    q_lr_scheduler_list=None
 
     def __post_init__(self):
         observation_space, action_space = self.observation_space, self.action_space
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
         model = self.model_cls(observation_space, action_space)
-        logging.debug(f" device REDQ-SAC: {device}")
+        logging.info(f" device REDQ-SAC: {device}")
+        logging.info(f" self.lr_actor {self.lr_actor}")
+        logging.info(f" self.lr_critic {self.lr_critic}")
         self.model = model.to(device)
         self.model_target = no_grad(deepcopy(self.model))
-        self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor)
-        self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic) for q in self.model.qs]
+        self.pi_optimizer = Adam(self.model.actor.parameters(), lr=self.lr_actor,weight_decay=self.l2_actor)
+        self.policy_lr_scheduler=torch.optim.lr_scheduler.StepLR(self.pi_optimizer,1,gamma=0.90)
+        self.q_optimizer_list = [Adam(q.parameters(), lr=self.lr_critic,weight_decay=self.l2_critic) for q in self.model.qs]
+        self.q_lr_scheduler_list=[torch.optim.lr_scheduler.StepLR(q_optim,1,gamma=0.90) for q_optim in self.q_optimizer_list]
         self.criterion = torch.nn.MSELoss()
         self.loss_pi = torch.zeros((1,), device=device)
 

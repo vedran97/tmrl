@@ -32,13 +32,26 @@ def combined_shape(length, shape=None):
     return (length, shape) if np.isscalar(shape) else (length, *shape)
 
 
+# def mlp(sizes, activation, output_activation=nn.Identity):
+#     layers = []
+#     for j in range(len(sizes) - 1):
+#         act = activation if j < len(sizes) - 2 else output_activation
+#         layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
+#     return nn.Sequential(*layers)
+
 def mlp(sizes, activation, output_activation=nn.Identity):
     layers = []
+    dropout_prob=0.0
+    dropout_first_layer=False
     for j in range(len(sizes) - 1):
         act = activation if j < len(sizes) - 2 else output_activation
-        layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
+        # layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
+        if dropout_first_layer:
+            layers += [nn.Linear(sizes[j], sizes[j + 1]), act(),nn.Dropout(p=dropout_prob)]
+            dropout_first_layer=False
+        else:
+            layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
     return nn.Sequential(*layers)
-
 
 def count_vars(module):
     return sum([np.prod(p.shape) for p in module.parameters()])
@@ -50,7 +63,7 @@ EPSILON = 1e-7
 
 
 class SquashedGaussianMLPActor(TorchActorModule):
-    def __init__(self, observation_space, action_space, hidden_sizes=(256, 256), activation=nn.ReLU):
+    def __init__(self, observation_space, action_space, hidden_sizes=(256, 512,256), activation=nn.ReLU):
         super().__init__(observation_space, action_space)
         try:
             dim_obs = sum(prod(s for s in space.shape) for space in observation_space)
@@ -109,7 +122,7 @@ class SquashedGaussianMLPActor(TorchActorModule):
 
 
 class MLPQFunction(nn.Module):
-    def __init__(self, obs_space, act_space, hidden_sizes=(256, 256), activation=nn.ReLU):
+    def __init__(self, obs_space, act_space, hidden_sizes=(256, 512,256), activation=nn.ReLU):
         super().__init__()
         try:
             obs_dim = sum(prod(s for s in space.shape) for space in obs_space)
@@ -155,7 +168,7 @@ class REDQMLPActorCritic(nn.Module):
     def __init__(self,
                  observation_space,
                  action_space,
-                 hidden_sizes=(256, 256),
+                 hidden_sizes=(256, 512,256),
                  activation=nn.ReLU,
                  n=10):
         super().__init__()
@@ -514,18 +527,26 @@ class VanillaCNN(Module):
         self.q_net = q_net
         self.h_out, self.w_out = cfg.IMG_HEIGHT, cfg.IMG_WIDTH
         hist = cfg.IMG_HIST_LEN
-
+        print(f"input to vanilla cnn:h_out {self.h_out} w_out {self.w_out}")
+        print(f"cfg {hist}")
         self.conv1 = Conv2d(hist, 64, 8, stride=2)
         self.h_out, self.w_out = conv2d_out_dims(self.conv1, self.h_out, self.w_out)
+        print(f"post conv1 shape:h_out {self.h_out} w_out {self.w_out}")
         self.conv2 = Conv2d(64, 64, 4, stride=2)
         self.h_out, self.w_out = conv2d_out_dims(self.conv2, self.h_out, self.w_out)
+        print(f"post conv2 shape:h_out {self.h_out} w_out {self.w_out}")
         self.conv3 = Conv2d(64, 128, 4, stride=2)
         self.h_out, self.w_out = conv2d_out_dims(self.conv3, self.h_out, self.w_out)
+        print(f"post conv3 shape:h_out {self.h_out} w_out {self.w_out}")
         self.conv4 = Conv2d(128, 128, 4, stride=2)
         self.h_out, self.w_out = conv2d_out_dims(self.conv4, self.h_out, self.w_out)
+        print(f"post conv4 shape:h_out {self.h_out} w_out {self.w_out}")
         self.out_channels = self.conv4.out_channels
+        print(f"post conv4 out channels:self.out_channels {self.out_channels}")
         self.flat_features = self.out_channels * self.h_out * self.w_out
+        print(f"flat features :self.flat_features {self.flat_features}")
         self.mlp_input_features = self.flat_features + 12 if self.q_net else self.flat_features + 9
+        print(f"mlp_input_features :mlp_input_features {self.mlp_input_features}")
         self.mlp_layers = [256, 256, 1] if self.q_net else [256, 256]
         self.mlp = mlp([self.mlp_input_features] + self.mlp_layers, nn.ReLU)
 
@@ -534,7 +555,6 @@ class VanillaCNN(Module):
             speed, gear, rpm, images, act1, act2, act = x
         else:
             speed, gear, rpm, images, act1, act2 = x
-
         x = F.relu(self.conv1(images))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
@@ -596,6 +616,172 @@ class SquashedGaussianVanillaCNNActor(TorchActorModule):
             return a.squeeze().cpu().numpy()
 
 
+relu = F.relu
+class UNet(Module):
+    def __init__(self,q_net):
+        super(UNet, self).__init__()
+        self.q_net = q_net
+        self.q_net = q_net
+        self.h_out, self.w_out = cfg.IMG_HEIGHT, cfg.IMG_WIDTH
+        hist = cfg.IMG_HIST_LEN
+        # Encoder
+        # In the encoder, convolutional layers with the Conv2d function are used to extract features from the input image. 
+        # Each block in the encoder consists of two convolutional layers followed by a max-pooling layer, with the exception of the last block which does not include a max-pooling layer.
+        # -------
+        # input: 572x572x3
+        self.e11 = nn.Conv2d(hist, 64, kernel_size=3, padding=1) # output: 570x570x64
+        # self.e12 = nn.Conv2d(64, 64, kernel_size=3, padding=1) # output: 568x568x64
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 284x284x64
+
+        # input: 284x284x64
+        self.e21 = nn.Conv2d(64, 128, kernel_size=3, padding=1) # output: 282x282x128
+        # self.e22 = nn.Conv2d(128, 128, kernel_size=3, padding=1) # output: 280x280x128
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 140x140x128
+
+        # input: 140x140x128
+        self.e31 = nn.Conv2d(128, 256, kernel_size=3, padding=1) # output: 138x138x256
+        # self.e32 = nn.Conv2d(256, 256, kernel_size=3, padding=1) # output: 136x136x256
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 68x68x256
+
+        # input: 68x68x256
+        self.e41 = nn.Conv2d(256, 512, kernel_size=3, padding=1) # output: 66x66x512
+        # self.e42 = nn.Conv2d(512, 512, kernel_size=3, padding=1) # output: 64x64x512
+        self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2) # output: 32x32x512
+
+        # input: 32x32x512
+        self.e51 = nn.Conv2d(512, 1024, kernel_size=3, padding=1) # output: 30x30x1024
+        # self.e52 = nn.Conv2d(1024, 1024, kernel_size=3, padding=1) # output: 28x28x1024
+
+
+        # Decoder
+        self.upconv1 = nn.ConvTranspose2d(1024, 512, kernel_size=2, stride=2)
+        self.d11 = nn.Conv2d(1024, 512, kernel_size=3, padding=1)
+        # self.d12 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
+
+        self.upconv2 = nn.ConvTranspose2d(512, 256, kernel_size=2, stride=2)
+        self.d21 = nn.Conv2d(512, 256, kernel_size=3, padding=1)
+        # self.d22 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+
+        self.upconv3 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2)
+        self.d31 = nn.Conv2d(256, 128, kernel_size=3, padding=1)
+        # self.d32 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.upconv4 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
+        self.outconv = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.avg_pool = nn.AvgPool2d((64,64),1,0)
+        self.out_channels = self.outconv.out_channels
+        print(f"post out_conv channels:self.out_channels {self.out_channels}")
+        ## TO FIX => Find this height , width
+        self.flat_features = self.out_channels * 1 * 1  #
+        print(f"flat features :self.flat_features {self.flat_features}")
+        self.mlp_input_features = self.flat_features + 12 if self.q_net else self.flat_features + 9
+        print(f"mlp_input_features :mlp_input_features {self.mlp_input_features}")
+        self.mlp_layers = [256, 256, 1] if self.q_net else [256]
+        self.mlp = mlp([self.mlp_input_features] + self.mlp_layers, nn.ReLU)
+    def forward(self, x):
+        if self.q_net:
+            speed, gear, rpm, images, act1, act2, act = x
+        else:
+            speed, gear, rpm, images, act1, act2 = x
+        # Encoder
+        xe11 = relu(self.e11(images))
+        # xe12 = relu(self.e12(xe11))
+        xp1 = self.pool1(xe11)
+
+        xe21 = relu(self.e21(xp1))
+        # xe22 = relu(self.e22(xe21))
+        xp2 = self.pool2(xe21)
+
+        xe31 = relu(self.e31(xp2))
+        # xe32 = relu(self.e32(xe31))
+        xp3 = self.pool3(xe31)
+
+        xe41 = relu(self.e41(xp3))
+        # xe42 = relu(self.e42(xe41))
+        xp4 = self.pool4(xe41)
+
+        xe51 = relu(self.e51(xp4))
+        # xe52 = relu(self.e52(xe51))
+        
+        # Decoder
+        xu1 = self.upconv1(xe51)
+        xu11 = torch.cat([xu1, xe41], dim=1)
+        xd11 = relu(self.d11(xu11))
+        # xd12 = relu(self.d12(xd11))
+
+        xu2 = self.upconv2(xd11)
+        xu22 = torch.cat([xu2, xe31], dim=1)
+        xd21 = relu(self.d21(xu22))
+        # xd22 = relu(self.d22(xd21))
+
+        xu3 = self.upconv3(xd21)
+        xu33 = torch.cat([xu3, xe21], dim=1)
+        xd31 = relu(self.d31(xu33))
+        # xd32 = relu(self.d32(xd31))
+
+        xu4 = self.upconv4(xd31)
+        xu44 = torch.cat([xu4, xe11], dim=1)
+        out = relu(self.outconv(xu44))
+        out = self.avg_pool(out)
+        # print(f"OUT SHAPE:{out.shape}")
+        flat_features = num_flat_features(out)
+        x=out
+        assert flat_features == self.flat_features, f"x.shape:{x.shape}, flat_features:{flat_features}, self.out_channels:{self.out_channels}, self.h_out:{self.h_out}, self.w_out:{self.w_out}"
+        x = x.view(-1, flat_features)
+        if self.q_net:
+            x = torch.cat((speed, gear, rpm, x, act1, act2, act), -1)
+        else:
+            x = torch.cat((speed, gear, rpm, x, act1, act2), -1)
+        x = self.mlp(x)
+        return x 
+
+class UNETCNNActor(TorchActorModule):
+    def __init__(self, observation_space, action_space):
+        print(f"USING U NET CNN ACTOR")
+        super().__init__(observation_space, action_space)
+        dim_act = action_space.shape[0]
+        act_limit = action_space.high[0]
+        self.net = UNet(q_net=False)
+        self.mu_layer = nn.Linear(256, dim_act)
+        self.log_std_layer = nn.Linear(256, dim_act)
+        self.act_limit = act_limit
+
+    def forward(self, obs, test=False, with_logprob=True):
+        net_out = self.net(obs)
+        mu = self.mu_layer(net_out)
+        log_std = self.log_std_layer(net_out)
+        log_std = torch.clamp(log_std, LOG_STD_MIN, LOG_STD_MAX)
+        std = torch.exp(log_std)
+
+        pi_distribution = Normal(mu, std)
+        if test:
+            pi_action = mu
+        else:
+            pi_action = pi_distribution.rsample()
+
+        if with_logprob:
+            logp_pi = pi_distribution.log_prob(pi_action).sum(axis=-1)
+            # NB: this is from Spinup:
+            logp_pi -= (2 * (np.log(2) - pi_action - F.softplus(-2 * pi_action))).sum(axis=1)  # FIXME: this formula is mathematically wrong, no idea why it seems to work
+            # Whereas SB3 does this:
+            # logp_pi -= torch.sum(torch.log(1 - torch.tanh(pi_action) ** 2 + EPSILON), dim=1)  # TODO: double check
+            # # log_prob -= th.sum(th.log(1 - actions**2 + self.epsilon), dim=1)
+        else:
+            logp_pi = None
+
+        pi_action = torch.tanh(pi_action)
+        pi_action = self.act_limit * pi_action
+
+        # pi_action = pi_action.squeeze()
+
+        return pi_action, logp_pi
+
+    def act(self, obs, test=False):
+        with torch.no_grad():
+            a, _ = self.forward(obs, test, False)
+            return a.squeeze().cpu().numpy()
+        
+
+
 class VanillaCNNQFunction(nn.Module):
     def __init__(self, observation_space, action_space):
         super().__init__()
@@ -606,6 +792,20 @@ class VanillaCNNQFunction(nn.Module):
         q = self.net(x)
         return torch.squeeze(q, -1)  # Critical to ensure q has right shape.
 
+
+class UNETActorCNNCritic(nn.Module):
+    def __init__(self, observation_space, action_space):
+        super().__init__()
+
+        # build policy and value functions
+        self.actor = UNETCNNActor(observation_space, action_space)
+        self.q1 = VanillaCNNQFunction(observation_space, action_space)
+        self.q2 = VanillaCNNQFunction(observation_space, action_space)
+
+    def act(self, obs, test=False):
+        with torch.no_grad():
+            a, _ = self.actor(obs, test, False)
+            return a.squeeze().cpu().numpy()
 
 class VanillaCNNActorCritic(nn.Module):
     def __init__(self, observation_space, action_space):

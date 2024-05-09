@@ -294,7 +294,7 @@ def run_with_wandb(entity, project, run_id, interface, run_cls, checkpoint_path:
     wandb_dir = tempfile.mkdtemp()  # prevent wandb from polluting the home directory
     atexit.register(shutil.rmtree, wandb_dir, ignore_errors=True)  # clean up after wandb atexit handler finishes
     import wandb
-    logging.debug(f" run_cls: {run_cls}")
+    logging.info(f" run_cls: {run_cls}")
     config = partial_to_dict(run_cls)
     config['environ'] = log_environment_variables()
     # config['git'] = git_info()  # TODO: check this for bugs
@@ -500,10 +500,10 @@ class RolloutWorker:
         self.actor = actor_module_cls(observation_space=obs_space, action_space=act_space).to_device(self.device)
         self.standalone = standalone
         if os.path.isfile(self.model_path):
-            logging.debug(f"Loading model from {self.model_path}")
+            logging.info(f"Loading model from {self.model_path}")
             self.actor = self.actor.load(self.model_path, device=self.device)
         else:
-            logging.debug(f"No model found at {self.model_path}")
+            logging.info(f"No model found at {self.model_path}")
         self.buffer = Buffer()
         self.max_samples_per_episode = max_samples_per_episode
         self.crc_debug = crc_debug
@@ -517,7 +517,7 @@ class RolloutWorker:
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
 
         print_with_timestamp(f"server IP: {self.server_ip}")
-
+        logging.info(f"lmao retard whats the obs size shape:{self.env.observation_space}")
         if not self.standalone:
             self.__endpoint = Endpoint(ip_server=self.server_ip,
                                        port=server_port,

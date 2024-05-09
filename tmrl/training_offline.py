@@ -89,12 +89,9 @@ class TrainingOffline:
         stats = []
         state = None
 
-        if self.agent_scheduler is not None:
-            self.agent_scheduler(self.agent, self.epoch)
-
         for rnd in range(self.rounds):
             logging.info(f"=== epoch {self.epoch}/{self.epochs} ".ljust(20, '=') + f" round {rnd}/{self.rounds} ".ljust(50, '='))
-            logging.debug(f"(Training): current memory size:{len(self.memory)}")
+            logging.info(f"(Training): current memory size:{len(self.memory)}")
 
             stats_training = []
 
@@ -158,6 +155,8 @@ class TrainingOffline:
                 pro.stop()
                 logging.info(pro.output_text(unicode=True, color=False, show_all=True))
 
+        if self.agent_scheduler is not None:
+            self.agent_scheduler(self.agent, self.epoch)
         self.epoch += 1
         return stats
 
